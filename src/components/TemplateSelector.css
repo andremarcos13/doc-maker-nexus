@@ -1,0 +1,155 @@
+.template-selector {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.template-selector h3 {
+  color: #e41e2d;
+  margin-bottom: 15px;
+}
+
+.template-actions {
+  margin-bottom: 20px;
+}
+
+.btn-save-template {
+  background: #e41e2d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.btn-save-template:hover {
+  background: #c91a2a;
+  transform: translateY(-2px);
+}
+
+.save-template-dialog {
+  background: #f8f9fa;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.save-template-dialog h4 {
+  color: #e41e2d;
+  margin-bottom: 15px;
+}
+
+.save-template-dialog label {
+  display: block;
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+
+.save-template-dialog input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-top: 5px;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.btn-primary {
+  background: #e41e2d;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  background: #696c71;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.templates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.template-card {
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.3s;
+  background: white;
+}
+
+.template-card:hover {
+  border-color: #e41e2d;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.template-card.active {
+  border-color: #e41e2d;
+  background: #fff5f5;
+}
+
+.template-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.template-header h4 {
+  margin: 0;
+  color: #e41e2d;
+  font-size: 1.1em;
+}
+
+.btn-delete-template {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  opacity: 0.6;
+  transition: opacity 0.3s;
+}
+
+.btn-delete-template:hover {
+  opacity: 1;
+}
+
+.template-description {
+  color: #666;
+  font-size: 0.9em;
+  margin-bottom: 10px;
+}
+
+.template-preview {
+  display: flex;
+  gap: 5px;
+}
+
+.color-preview {
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+

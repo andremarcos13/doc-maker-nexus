@@ -1,0 +1,31 @@
+.form-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 30px;
+  padding-top: 30px;
+  border-top: 2px solid #e0e0e0;
+}
+
+.btn-primary {
+  background: #e41e2d;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #c91a2a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(228, 30, 45, 0.3);
+}
+
+.btn-danger {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #c82333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
