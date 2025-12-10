@@ -288,4 +288,4 @@ Este projeto foi desenvolvido para uso interno da **Nexus Consultoria em ERP**.
 
 ## 💝 Créditos
 
-Desenvolvido com ❤️ para Nexus Projetos
+Desenvolvido para Nexus Consultoria em ERP
