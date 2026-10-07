@@ -12,6 +12,7 @@ import HistoryPanel from './components/HistoryPanel'
 import { generatePDF } from './utils/pdfGenerator'
 import { normalizeQueryParams } from './utils/queryParams'
 import { saveToHistory } from './utils/historyManager'
+import { importProjectPdf } from './utils/pdfImport'
 import './App.css'
 
 const DEFAULT_SETTINGS = {
@@ -155,6 +156,27 @@ function App() {
     )
   }
 
+  const handleImportPdf = async (file) => {
+    const hasContent = projectTitle.trim() || apis.some((api) =>
+      api.title || api.endpoint || api.body || api.responseSuccess || api.responseError ||
+      (Array.isArray(api.queryParams) && api.queryParams.some((param) => param.name))
+    )
+
+    if (hasContent && !confirm('Importar este PDF substitui o título, a versão e as APIs do formulário. Continuar?')) {
+      return
+    }
+
+    try {
+      const data = await importProjectPdf(await file.arrayBuffer())
+      handleLoadDocument(data)
+      if (data.recoveredFromText) {
+        alert('PDF importado. Confira os campos, principalmente os exemplos de JSON, e edite o que precisar.')
+      }
+    } catch (error) {
+      alert(error.message || 'Não foi possível importar este PDF.')
+    }
+  }
+
   const handleClear = () => {
     if (confirm('Tem certeza que deseja limpar todo o formulário?')) {
       setProjectTitle('')
@@ -178,7 +200,7 @@ function App() {
       
       <div className="main-layout">
         <div className="form-section-main">
-          <HistoryPanel onLoadDocument={handleLoadDocument} />
+          <HistoryPanel onLoadDocument={handleLoadDocument} onImportPdf={handleImportPdf} />
           
           <TemplateSelector
             currentTemplate={template}

@@ -1,5 +1,6 @@
 import { jsPDF } from "jspdf";
 import { normalizeQueryParams } from "./queryParams";
+import { embedProjectPayload } from "./pdfPayload";
 
 // Cores padrão da empresa Nexus (serão sobrescritas pelas settings)
 const DEFAULT_COLORS = {
@@ -1037,6 +1038,8 @@ export async function generatePDFContent(data, isPreview = false) {
         apiIndex++;
       });
     }
+
+    embedProjectPayload(pdf, data);
 
     // Se for preview, retornar o PDF sem salvar
     if (isPreview) {

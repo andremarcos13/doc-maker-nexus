@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { getHistory, clearHistory, removeFromHistory } from '../utils/historyManager'
 import './HistoryPanel.css'
 
-function HistoryPanel({ onLoadDocument }) {
+function HistoryPanel({ onLoadDocument, onImportPdf }) {
   const [history, setHistory] = useState([])
   const [isOpen, setIsOpen] = useState(false)
+  const [importing, setImporting] = useState(false)
+  const fileInputRef = useRef(null)
 
   useEffect(() => {
     loadHistory()
@@ -34,14 +36,45 @@ function HistoryPanel({ onLoadDocument }) {
     }
   }
 
+  const handleImport = async (event) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file || !onImportPdf) return
+
+    setImporting(true)
+    try {
+      await onImportPdf(file)
+    } finally {
+      setImporting(false)
+    }
+  }
+
   return (
     <div className="history-panel">
-      <button
-        className="history-toggle"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        {isOpen ? '📚 Fechar Histórico' : `📚 Histórico (${history.length})`}
-      </button>
+      <div className="doc-load-actions">
+        <button
+          type="button"
+          className="history-toggle"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          {isOpen ? '📚 Fechar Histórico' : `📚 Histórico (${history.length})`}
+        </button>
+        <button
+          type="button"
+          className="import-pdf-btn"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={importing}
+        >
+          {importing ? 'Importando PDF...' : '📄 Importar PDF'}
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="application/pdf,.pdf"
+          hidden
+          onChange={handleImport}
+        />
+      </div>
 
       {isOpen && (
         <div className="history-content">

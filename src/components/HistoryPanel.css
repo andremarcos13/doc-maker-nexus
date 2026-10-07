@@ -2,10 +2,14 @@
   margin-bottom: 20px;
 }
 
-.history-toggle {
-  width: 100%;
-  background: #696c71;
-  color: white;
+.doc-load-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.history-toggle,
+.import-pdf-btn {
+  flex: 1;
   border: none;
   padding: 12px 20px;
   border-radius: 6px;
@@ -13,6 +17,33 @@
   font-size: 16px;
   font-weight: 600;
   transition: all 0.3s;
+}
+
+.history-toggle {
+  background: #696c71;
+  color: white;
+}
+
+.import-pdf-btn {
+  background: white;
+  color: #e41e2d;
+  border: 2px solid #e41e2d;
+}
+
+.import-pdf-btn:hover:not(:disabled) {
+  background: rgba(228, 30, 45, 0.06);
+  transform: translateY(-2px);
+}
+
+.import-pdf-btn:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+@media (max-width: 700px) {
+  .doc-load-actions {
+    flex-direction: column;
+  }
 }
 
 .history-toggle:hover {
