@@ -46,3 +46,106 @@
   transform: rotate(90deg);
 }
 
+.params-table-wrap {
+  overflow-x: auto;
+}
+
+.params-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.params-table th {
+  text-align: left;
+  font-size: 12px;
+  color: #555;
+  padding: 6px 6px 8px;
+  border-bottom: 1px solid #e0e0e0;
+  white-space: nowrap;
+}
+
+.params-table td {
+  padding: 6px;
+  vertical-align: middle;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.params-table th:nth-child(1),
+.params-table td:nth-child(1) {
+  width: 22%;
+}
+
+.params-table th:nth-child(2),
+.params-table td:nth-child(2) {
+  width: 16%;
+}
+
+.params-table th:nth-child(3),
+.params-table td:nth-child(3) {
+  width: 14%;
+}
+
+.params-table th:nth-child(5),
+.params-table td:nth-child(5) {
+  width: 36px;
+}
+
+.form-group .params-table input,
+.form-group .params-table select {
+  padding: 7px 8px;
+  font-size: 13px;
+}
+
+.form-group .params-required label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-weight: 500;
+  color: #333;
+  white-space: nowrap;
+}
+
+.form-group .params-required input {
+  width: auto;
+  padding: 0;
+}
+
+.params-empty {
+  color: #888;
+  font-size: 13px;
+  padding: 10px 6px !important;
+}
+
+.btn-add-param {
+  margin-top: 10px;
+  background: transparent;
+  color: #e41e2d;
+  border: 1px dashed #e41e2d;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.btn-add-param:hover {
+  background: rgba(228, 30, 45, 0.06);
+}
+
+.btn-remove-param {
+  background: transparent;
+  color: #888;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+}
+
+.btn-remove-param:hover {
+  color: #dc3545;
+  background: #fdecea;
+}
+

@@ -1,4 +1,5 @@
 import { jsPDF } from "jspdf";
+import { normalizeQueryParams } from "./queryParams";
 
 // Cores padrão da empresa Nexus (serão sobrescritas pelas settings)
 const DEFAULT_COLORS = {
@@ -323,67 +324,29 @@ export async function generatePDFContent(data, isPreview = false) {
       pdf.setFont(fonts.main || "helvetica", "normal");
     };
 
-    // Função para adicionar tabela de Query Parameters estilo Postman
-    const addQueryParamsTable = (queryParamsString) => {
-      // Parsear queryParams (pode ser string "key=value;key2=value2" ou JSON)
-      let params = [];
-
-      if (!queryParamsString || !queryParamsString.trim()) return;
-
-      try {
-        // Tentar parsear como JSON primeiro
-        const parsed = JSON.parse(queryParamsString);
-        if (Array.isArray(parsed)) {
-          params = parsed.map((p) => ({
-            key: p.key || p.name || "",
-            value: p.value || "",
-            description: p.description || "",
-          }));
-        } else if (typeof parsed === "object") {
-          params = Object.keys(parsed).map((key) => ({
-            key: key,
-            value: parsed[key] || "",
-            description: "",
-          }));
-        }
-      } catch (e) {
-        // Se não for JSON, tentar parsear como string "key=value;key2=value2" ou "key=value&key2=value2"
-        const pairs = queryParamsString.split(/[;&]/).filter((p) => p.trim());
-        params = pairs.map((pair) => {
-          const trimmed = pair.trim();
-          const equalIndex = trimmed.indexOf("=");
-          if (equalIndex > 0) {
-            return {
-              key: trimmed.substring(0, equalIndex).trim(),
-              value: trimmed.substring(equalIndex + 1).trim() || "",
-              description: "",
-            };
-          } else {
-            return {
-              key: trimmed,
-              value: "",
-              description: "",
-            };
-          }
-        });
-      }
-
+    const addQueryParamsTable = (queryParams) => {
+      const params = normalizeQueryParams(queryParams).filter((p) => p.name.trim());
       if (params.length === 0) return;
 
       const tableBg = hexToRgb(codeStyle.backgroundColor || "#4a4a4a");
       const tableBorder = hexToRgb(codeStyle.borderColor || "#30363d");
-      const headerBg = hexToRgb("#333333"); // Fundo mais escuro para header
+      const headerBg = hexToRgb("#333333");
 
       const rowHeight = 8;
       const headerHeight = 10;
-      const colPadding = 4;
+      const colPadding = 3;
 
-      // Larguras das colunas (ajustáveis)
-      const keyColWidth = contentWidth * 0.2;
-      const valueColWidth = contentWidth * 0.2;
-      const descColWidth = contentWidth * 0.3;
+      const nameColWidth = contentWidth * 0.22;
+      const typeColWidth = contentWidth * 0.16;
+      const requiredColWidth = contentWidth * 0.18;
+      const descColWidth = contentWidth * 0.44;
+      const columns = [
+        { label: "Parâmetro", width: nameColWidth },
+        { label: "Tipo", width: typeColWidth },
+        { label: "Obrigatório", width: requiredColWidth },
+        { label: "Descrição", width: descColWidth },
+      ];
 
-      // Verificar se precisa de nova página
       const tableHeight = headerHeight + params.length * rowHeight;
       if (currentY + tableHeight > pageHeight - footerHeight - 5) {
         addNewPage();
@@ -392,7 +355,6 @@ export async function generatePDFContent(data, isPreview = false) {
       const tableStartY = currentY;
       const tableWidth = contentWidth;
 
-      // Desenhar tabela: fundo do corpo primeiro
       pdf.setFillColor(tableBg.r, tableBg.g, tableBg.b);
       pdf.rect(
         margin,
@@ -402,133 +364,83 @@ export async function generatePDFContent(data, isPreview = false) {
         "F"
       );
 
-      // Desenhar header por cima
       pdf.setFillColor(headerBg.r, headerBg.g, headerBg.b);
       pdf.rect(margin, tableStartY - 2, tableWidth, headerHeight, "F");
 
-      // Desenhar borda externa (bordas retas)
       pdf.setDrawColor(tableBorder.r, tableBorder.g, tableBorder.b);
       pdf.setLineWidth(0.5);
       pdf.rect(margin, tableStartY - 2, tableWidth, tableHeight, "D");
 
-      // Texto do header
-      pdf.setFontSize(9);
+      pdf.setFontSize(8);
       pdf.setFont(undefined, "bold");
       pdf.setTextColor(255, 255, 255);
 
-      pdf.text("Key", margin + colPadding, tableStartY + 5);
-      pdf.text("Value", margin + keyColWidth + colPadding, tableStartY + 5);
-      pdf.text(
-        "Description",
-        margin + keyColWidth + valueColWidth + colPadding,
-        tableStartY + 5
-      );
+      let headerX = margin;
+      columns.forEach((col) => {
+        pdf.text(col.label, headerX + colPadding, tableStartY + 5);
+        headerX += col.width;
+      });
 
       pdf.setFont(undefined, "normal");
 
-      // Desenhar linhas da tabela
       let rowY = tableStartY + headerHeight;
+      const keyColor = hexToRgb("#4FC1FF");
+      const typeColor = hexToRgb("#FFC66D");
+      const descColor = hexToRgb("#C9D1D9");
 
       params.forEach((param, index) => {
-        // Cor alternada para linhas (mais sutil)
-        if (index % 2 === 0) {
-          // Manter cor de fundo padrão (já desenhada)
-        } else {
+        if (index % 2 === 1) {
           const altBg = hexToRgb("#3a3a3a");
           pdf.setFillColor(altBg.r, altBg.g, altBg.b);
           pdf.rect(margin, rowY, tableWidth, rowHeight, "F");
         }
 
-        // Linha separadora
         pdf.setDrawColor(
           tableBorder.r * 0.7,
           tableBorder.g * 0.7,
           tableBorder.b * 0.7
         );
         pdf.setLineWidth(0.3);
-        pdf.line(
-          margin,
-          rowY + rowHeight,
-          margin + tableWidth,
-          rowY + rowHeight
-        );
+        pdf.line(margin, rowY + rowHeight, margin + tableWidth, rowY + rowHeight);
 
-        // Texto das células
-        pdf.setFontSize(8.5);
-        pdf.setTextColor(255, 255, 255);
+        pdf.setFontSize(8);
+        const cells = [
+          { text: param.name, color: keyColor },
+          { text: param.type, color: typeColor },
+          { text: param.required ? "Sim" : "Não", color: descColor },
+          { text: param.description, color: descColor },
+        ];
 
-        // Key (azul claro como no Postman)
-        const keyColor = hexToRgb("#4FC1FF");
-        pdf.setTextColor(keyColor.r, keyColor.g, keyColor.b);
-        const keyText = pdf.splitTextToSize(
-          param.key || "",
-          keyColWidth - colPadding * 2
-        );
-        pdf.text(keyText[0] || "", margin + colPadding, rowY + 5);
-
-        // Value (amarelo se for string, verde se for número)
-        let valueText = String(param.value || "");
-        if (/^\d+$/.test(valueText)) {
-          const numColor = hexToRgb("#79C071");
-          pdf.setTextColor(numColor.r, numColor.g, numColor.b);
-        } else {
-          const strColor = hexToRgb("#FFC66D");
-          pdf.setTextColor(strColor.r, strColor.g, strColor.b);
-        }
-        const valueLines = pdf.splitTextToSize(
-          valueText,
-          valueColWidth - colPadding * 2
-        );
-        pdf.text(
-          valueLines[0] || "",
-          margin + keyColWidth + colPadding,
-          rowY + 5
-        );
-
-        // Description (cinza claro)
-        const descColor = hexToRgb("#C9D1D9");
-        pdf.setTextColor(descColor.r, descColor.g, descColor.b);
-        const descLines = pdf.splitTextToSize(
-          param.description || "",
-          descColWidth - colPadding * 2
-        );
-        pdf.text(
-          descLines[0] || "",
-          margin + keyColWidth + valueColWidth + colPadding,
-          rowY + 5
-        );
+        let cellX = margin;
+        cells.forEach((cell, cellIndex) => {
+          pdf.setTextColor(cell.color.r, cell.color.g, cell.color.b);
+          const lines = pdf.splitTextToSize(
+            cell.text || "",
+            columns[cellIndex].width - colPadding * 2
+          );
+          pdf.text(lines[0] || "", cellX + colPadding, rowY + 5);
+          cellX += columns[cellIndex].width;
+        });
 
         rowY += rowHeight;
-
-        // Verificar se precisa quebrar página
-        if (rowY > pageHeight - footerHeight - 5 && index < params.length - 1) {
-          // Continuar na próxima página (implementação futura se necessário)
-          addNewPage();
-          rowY = margin + headerHeight;
-        }
       });
 
-      // Linhas verticais separadoras (apenas no corpo, não no header)
       pdf.setDrawColor(
         tableBorder.r * 0.8,
         tableBorder.g * 0.8,
         tableBorder.b * 0.8
       );
       pdf.setLineWidth(0.3);
-      // Linha vertical entre Key e Value
-      pdf.line(
-        margin + keyColWidth,
-        tableStartY + headerHeight - 2,
-        margin + keyColWidth,
-        tableStartY + tableHeight - 2
-      );
-      // Linha vertical entre Value e Description
-      pdf.line(
-        margin + keyColWidth + valueColWidth,
-        tableStartY + headerHeight - 2,
-        margin + keyColWidth + valueColWidth,
-        tableStartY + tableHeight - 2
-      );
+      let dividerX = margin;
+      columns.slice(0, -1).forEach((col) => {
+        dividerX += col.width;
+        pdf.line(
+          dividerX,
+          tableStartY + headerHeight - 2,
+          dividerX,
+          tableStartY + tableHeight - 2
+        );
+      });
 
       currentY = tableStartY + tableHeight + 5;
       pdf.setTextColor(0, 0, 0);
@@ -1017,7 +929,8 @@ export async function generatePDFContent(data, isPreview = false) {
       pdf.setFont(fonts.main || "helvetica", "normal");
 
       // Query Params ou Body
-      if (api.method === "GET" && api.queryParams) {
+      const queryParams = normalizeQueryParams(api.queryParams).filter((p) => p.name.trim());
+      if (api.method === "GET" && queryParams.length > 0) {
         const sectionTitleColor = hexToRgb(colors.secondary);
         pdf.setTextColor(
           sectionTitleColor.r,

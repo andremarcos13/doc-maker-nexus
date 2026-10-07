@@ -10,6 +10,7 @@ import SettingsPanel from './components/SettingsPanel'
 import TemplateSelector from './components/TemplateSelector'
 import HistoryPanel from './components/HistoryPanel'
 import { generatePDF } from './utils/pdfGenerator'
+import { normalizeQueryParams } from './utils/queryParams'
 import { saveToHistory } from './utils/historyManager'
 import './App.css'
 
@@ -51,7 +52,7 @@ function App() {
       title: '',
       method: '',
       endpoint: '',
-      queryParams: '',
+      queryParams: [],
       body: '',
       responseSuccess: '',
       responseError: ''
@@ -66,7 +67,7 @@ function App() {
       title: '',
       method: '',
       endpoint: '',
-      queryParams: '',
+      queryParams: [],
       body: '',
       responseSuccess: '',
       responseError: ''
@@ -78,7 +79,7 @@ function App() {
   }
 
   const handleUpdateApi = (id, field, value) => {
-    setApis(apis.map(api => 
+    setApis(prev => prev.map(api =>
       api.id === id ? { ...api, [field]: value } : api
     ))
   }
@@ -136,7 +137,7 @@ function App() {
           title: api.title || '',
           method: api.method || '',
           endpoint: api.endpoint || '',
-          queryParams: api.queryParams || '',
+          queryParams: normalizeQueryParams(api.queryParams),
           body: api.body || '',
           responseSuccess: api.responseSuccess || '',
           responseError: api.responseError || ''
@@ -146,7 +147,7 @@ function App() {
           title: '',
           method: '',
           endpoint: '',
-          queryParams: '',
+          queryParams: [],
           body: '',
           responseSuccess: '',
           responseError: ''
@@ -163,7 +164,7 @@ function App() {
         title: '',
         method: '',
         endpoint: '',
-        queryParams: '',
+        queryParams: [],
         body: '',
         responseSuccess: '',
         responseError: ''
